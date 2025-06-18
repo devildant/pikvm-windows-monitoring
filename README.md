@@ -67,7 +67,7 @@ in header section i add line 54 :
 
 and i add after  ```<li class="right feature-disabled" id="gpio-dropdown">...</li>``` this : 
 ```
-    <li class="right" id="monitor-dropdown"><a class="menu-button" id="monitor-menu-button" href="#"><span></span></a>
+    <li class="right hidden" id="monitor-dropdown"><a class="menu-button" id="monitor-menu-button" href="#"><span></span></a>
       <div class="menu" id="monitor-menu"></div>
     </li>
 ```

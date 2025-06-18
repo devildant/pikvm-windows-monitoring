@@ -303,6 +303,7 @@ function fetchAndLog() {
         // summarySpan.textContent = `🌡️ ${coreAverageVal || cpuCoresVal || "?"} ⚙️ ${cpuTotalVal || "?"}`;
 		//summarySpan.textContent = `🌡️ ${coreAverageVal || cpuCoresVal || "?"} | ⚙️ ${cpuTotalVal || "?"} | <span style='position:relative; top:-3px;'>🝙</span> ${memUsedVal || "?"}`;
       }
+	  document.getElementById("monitor-dropdown").classList.remove("hidden");
     })
     .catch(err => {
       console.log(`❌ JSON error: ${err.message}`);
