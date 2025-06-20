@@ -210,9 +210,6 @@ function fetchAndLog() {
 			html += `</tr>`;
 		}
 		html += `</tbody></table>`;
-
-	 
-	  console.log(html);
 	  return html;
 	}
 	
