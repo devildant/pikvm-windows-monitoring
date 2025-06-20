@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>IFrame Host</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100dvh;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100dvw;
+      height: calc(100dvh - 40px);
+      border: none;
+      touch-action: none;
+    }
+	.menu {
+      width: 100%;
+      background-color: #333;
+      color: white;
+      text-align: center;
+      height: 40px;
+      font-size: 22px;
+	  line-height:40px;
+    }
+	
+	#keyboard {
+	position: fixed;
+	bottom: 0px;
+	background-color: grey;
+	width: 100dvw;
+	height: 20%;
+	}
+  </style>
+</head>
+<body>
+  <div class="menu">Menu</div>
+  <iframe src="iframe-content.html"></iframe>
+  <div id="keyboard">keyboard</div>
+  <script>
+document.addEventListener('gesturestart', function (e) {
+  e.preventDefault();
+});
+
+document.addEventListener('touchstart', function (e) {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+document.addEventListener('dblclick', function (e) {
+  e.preventDefault();
+});
+</script>
+</body>
+</html>

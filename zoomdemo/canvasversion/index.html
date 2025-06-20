@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas Zoom</title>
+  <meta name="viewport" content="width=device-width, shrink-to-fit=0,initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+      touch-action: none;
+    }
+    canvas {
+      display: block;
+      background: black;
+      touch-action: none;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+	.menu {
+      width: 100%;
+      background-color: #333;
+      color: white;
+      text-align: center;
+      height: 40px;
+      font-size: 22px;
+	  line-height:40px;
+    }
+	#keyboard {
+	position: fixed;
+	bottom: 0px;
+	background-color: grey;
+	width: 100dvw;
+	height: 20%;
+	}
+  </style>
+</head>
+<body>
+<div class="menu">Menu</div>
+  <canvas id="canvas"></canvas>
+  <div id="keyboard">keyboard</div>
+  <script>
+document.addEventListener('gesturestart', function (e) {
+  e.preventDefault();
+});
+
+document.addEventListener('touchstart', function (e) {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+document.addEventListener('dblclick', function (e) {
+  e.preventDefault();
+});
+</script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.src = "image.png";
+
+    let scale = 1;
+    let minScale = 1;
+    let maxScaleRef = 3.2;
+    let offsetX = 0;
+    let offsetY = 0;
+    let lastTouches = [];
+
+    let canvasW = window.innerWidth;
+    let canvasH = window.innerHeight;
+
+    canvas.width = canvasW;
+    canvas.height = canvasH;
+
+    img.onload = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      canvasW = canvas.width;
+      canvasH = canvas.height;
+
+      minScale = canvasW / img.width;
+      maxScale = minScale * maxScaleRef;
+      scale = minScale;
+
+      offsetX = 0;
+      offsetY = (canvasH - img.height * scale) / 2;
+
+      requestAnimationFrame(() => {
+        clampOffset();
+        draw();
+      });
+    };
+
+    function draw() {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+
+      ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+      ctx.drawImage(img, 0, 0);
+    }
+
+    function clampOffset() {
+      const scaledW = img.width * scale;
+      const scaledH = img.height * scale;
+
+      const minX = Math.min(0, canvasW - scaledW);
+      const maxX = 0;
+
+      const minY = Math.min(0, canvasH - scaledH);
+      const maxY = 0;
+
+      offsetX = Math.min(maxX, Math.max(minX, offsetX));
+      offsetY = Math.min(maxY, Math.max(minY, offsetY));
+    }
+
+    canvas.addEventListener('touchstart', e => {
+      lastTouches = [...e.touches];
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const touches = [...e.touches];
+
+      if (touches.length === 1 && lastTouches.length === 1) {
+        const dx = touches[0].clientX - lastTouches[0].clientX;
+        const dy = touches[0].clientY - lastTouches[0].clientY;
+        offsetX += dx;
+        offsetY += dy;
+      }
+
+      if (touches.length === 2 && lastTouches.length === 2) {
+        const dist = getDistance(touches[0], touches[1]);
+        const prevDist = getDistance(lastTouches[0], lastTouches[1]);
+        const zoomFactor = dist / prevDist;
+
+        const newScale = Math.min(maxScale, Math.max(minScale, scale * zoomFactor));
+        const mid = getMidpoint(touches[0], touches[1]);
+
+        const imgX = (mid.x - offsetX) / scale;
+        const imgY = (mid.y - offsetY) / scale;
+
+        scale = newScale;
+        offsetX = mid.x - imgX * scale;
+        offsetY = mid.y - imgY * scale;
+      }
+
+      clampOffset();
+      draw();
+      lastTouches = touches;
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', e => {
+      lastTouches = [...e.touches];
+    });
+
+    function getDistance(p1, p2) {
+      const dx = p1.clientX - p2.clientX;
+      const dy = p1.clientY - p2.clientY;
+      return Math.hypot(dx, dy);
+    }
+
+    function getMidpoint(p1, p2) {
+      return {
+        x: (p1.clientX + p2.clientX) / 2,
+        y: (p1.clientY + p2.clientY) / 2
+      };
+    }
+  </script>
+</body>
+</html>

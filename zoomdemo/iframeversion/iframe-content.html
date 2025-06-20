@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=no">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      touch-action: none;
+      background: black;
+    }
+    #container {
+      transform-origin: 0 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      touch-action: none;
+    }
+    img {
+      display: block;
+      max-width: none;
+      user-select: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <img src="image.png" id="img" />
+  </div>
+
+  <script>
+    const container = document.getElementById('container');
+    const img = document.getElementById('img');
+
+    let scale = 1;
+    let minScale = 1;
+    let maxScaleRef = 3.2;
+    let translateX = 0;
+    let translateY = 0;
+    let lastTouches = [];
+
+    function updateTransform() {
+      container.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    }
+
+    function clampTranslate() {
+      const scaledWidth = img.naturalWidth * scale;
+      const scaledHeight = img.naturalHeight * scale;
+
+      const minX = Math.min(0, window.innerWidth - scaledWidth);
+      const maxX = 0;
+
+      const minY = Math.min(0, window.innerHeight - scaledHeight);
+      const maxY = 0;
+
+      translateX = Math.min(maxX, Math.max(minX, translateX));
+      translateY = Math.min(maxY, Math.max(minY, translateY));
+    }
+
+    img.onload = () => {
+      minScale = window.innerWidth / img.naturalWidth;
+      maxScale = minScale * maxScaleRef;
+      scale = minScale;
+
+      translateX = 0;
+      translateY = (window.innerHeight - img.naturalHeight * scale) / 2;
+
+      clampTranslate();
+      updateTransform();
+    };
+
+    document.addEventListener('touchstart', e => {
+      lastTouches = [...e.touches];
+    });
+
+    document.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const touches = [...e.touches];
+
+      if (touches.length === 1 && lastTouches.length === 1) {
+        const dx = touches[0].clientX - lastTouches[0].clientX;
+        const dy = touches[0].clientY - lastTouches[0].clientY;
+        translateX += dx;
+        translateY += dy;
+      }
+
+      if (touches.length === 2 && lastTouches.length === 2) {
+        const dist = getDistance(touches[0], touches[1]);
+        const prevDist = getDistance(lastTouches[0], lastTouches[1]);
+        const zoomFactor = dist / prevDist;
+
+        const mid = getMidpoint(touches[0], touches[1]);
+
+        const newScale = Math.min(maxScale, Math.max(minScale, scale * zoomFactor));
+
+        const imgX = (mid.x - translateX) / scale;
+        const imgY = (mid.y - translateY) / scale;
+
+        scale = newScale;
+        translateX = mid.x - imgX * scale;
+        translateY = mid.y - imgY * scale;
+      }
+
+      clampTranslate();
+      updateTransform();
+      lastTouches = touches;
+    }, { passive: false });
+
+    document.addEventListener('touchend', e => {
+      lastTouches = [...e.touches];
+    });
+
+    function getDistance(p1, p2) {
+      const dx = p1.clientX - p2.clientX;
+      const dy = p1.clientY - p2.clientY;
+      return Math.hypot(dx, dy);
+    }
+
+    function getMidpoint(p1, p2) {
+      return {
+        x: (p1.clientX + p2.clientX) / 2,
+        y: (p1.clientY + p2.clientY) / 2
+      };
+    }
+  </script>
+</body>
+</html>
