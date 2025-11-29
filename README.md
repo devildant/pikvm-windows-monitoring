@@ -69,7 +69,7 @@ in header section i add line 54 :
 and i add after  ```<li class="right feature-disabled" id="gpio-dropdown">...</li>``` this : 
 ```
     <li class="right hidden" id="monitor-dropdown"><a style="text-decoration: none;" class="menu-button" id="monitor-menu-button" href="#"><span></span></a>
-      <div class="menu" id="monitor-menu"  style="max-height: calc(100vh - 80px); white-space: nowrap; max-width: 530px; width: 100%;overflow-x: auto;"></div>
+      <div class="menu" id="monitor-menu"  style="max-height: calc(80vh - 50px);; white-space: nowrap; max-width: 530px; width: 100%;overflow-x: auto;"></div>
     </li>
 ```
 
